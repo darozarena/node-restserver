@@ -11,7 +11,7 @@ const app = express();
 
 app.get("/usuario", verificaToken, (req, res) => {
     let from = Number(req.query.from) || 0;
-    let limit = Number(req.query.limit) || 0;
+    let limit = Number(req.query.limit) || 10;
 
     Usuario.find({ estado: true }, "nombre email google")
         .skip(from)
@@ -51,7 +51,7 @@ app.post("/usuario", [verificaToken, verificaAdminRole], (req, res) => {
             });
         }
 
-        res.json({
+        res.status(201).json({
             ok: true,
             usuario: usuarioDB
         });
@@ -67,9 +67,18 @@ app.put("/usuario/:id", [verificaToken, verificaAdminRole], (req, res) => {
         body, { new: true, runValidators: true },
         (err, usuarioDB) => {
             if (err) {
-                return res.status(400).json({
+                return res.status(500).json({
                     ok: false,
                     err
+                });
+            }
+
+            if (!usuarioDB) {
+                return res.status(400).json({
+                    ok: false,
+                    err: {
+                        message: "Usuario no encontrado"
+                    }
                 });
             }
 
@@ -93,15 +102,24 @@ app.delete("/usuario/:id", [verificaToken, verificaAdminRole], (req, res) => {
         cambiarEstado, { new: true },
         (err, usuarioRemoved) => {
             if (err) {
-                return res.status(400).json({
+                return res.status(500).json({
                     ok: false,
                     err
                 });
             }
 
+            if (!usuarioRemoved) {
+                return res.status(400).json({
+                    ok: false,
+                    err: {
+                        message: "Usuario no encontrado"
+                    }
+                });
+            }
+
             res.json({
                 ok: true,
-                usuario: usuarioRemoved
+                message: "Usuario Borrado"
             });
         }
     );
