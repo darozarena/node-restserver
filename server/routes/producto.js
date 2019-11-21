@@ -1,7 +1,6 @@
 const express = require("express");
 const _ = require("underscore");
 const Producto = require("../models/producto");
-const Categoria = require("../models/categoria");
 const { verificaToken } = require("../middlewares/autenticacion");
 
 const app = express();
